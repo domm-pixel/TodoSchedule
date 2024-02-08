@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:todo="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="homeVm"
+            type="com.dom.todo.view.home.viewmodel.HomeViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:paddingTop="20dp">
+
+        <LinearLayout
+            android:id="@+id/calendarContainer"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/titlesContainer"
+                layout="@layout/calendar_day_titles_container" />
+
+            <com.kizitonwose.calendar.view.CalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cv_dayViewResource="@layout/calendar_day_layout" />
+
+        </LinearLayout>
+        <Button
+            android:id="@+id/addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/calendarContainer" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="vertical"
+            todo:itemCount="3"
+            todo:listitem="@layout/item_day_schedule"
+            app:layout_constraintTop_toBottomOf="@+id/addButton"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNoSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/addButton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="center"
+            android:text="No Schedule"
+            android:visibility="gone" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
