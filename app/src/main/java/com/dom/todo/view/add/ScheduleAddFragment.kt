@@ -1,26 +1,30 @@
 package com.dom.todo.view.add
 
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dom.todo.R
-import com.dom.todo.base.BaseFragment
+import com.dom.todo.base.BaseDialogFragment
 import com.dom.todo.databinding.FragmentAddScheduleBinding
 import com.dom.todo.model.schedule.Schedule
+import com.dom.todo.util.EventObserver
 import com.dom.todo.view.add.viewmodel.AddViewModel
-import com.google.android.material.internal.ViewUtils.showKeyboard
+import com.dom.todo.view.home.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class ScheduleAddFragment:BaseFragment<FragmentAddScheduleBinding>(R.layout.fragment_add_schedule) {
+class ScheduleAddFragment: BaseDialogFragment<FragmentAddScheduleBinding>(R.layout.fragment_add_schedule) {
 
+    private val homeViewModel: HomeViewModel by viewModels (
+        ownerProducer = { requireParentFragment() }
+    )
     private val addViewModel: AddViewModel by viewModels()
 
 //    private val db = Room.databaseBuilder(
@@ -33,11 +37,20 @@ class ScheduleAddFragment:BaseFragment<FragmentAddScheduleBinding>(R.layout.frag
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.e("TAG KDH", "ScheduleAddFragment onViewCreated: ${homeViewModel.selectedDate.value}")
 
-        val date = arguments?.getString("date")
+        // get date from homeViewModel which is selected by user
+        val date: String = homeViewModel.selectedDate.value.toString()
+
+        // if date is empty, show toast and popBackStack
+        if(date.isEmpty()) {
+            Toast.makeText(requireContext(), "날짜를 선택해주세요.", Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack()
+        }
+
 
         binding {
-
+            viewModel = addViewModel
             showSoftKeyboard(etTitle)
 
             btnSave.setOnClickListener {
@@ -65,13 +78,26 @@ class ScheduleAddFragment:BaseFragment<FragmentAddScheduleBinding>(R.layout.frag
                     }
                 }
             }
+
+            addViewModel.backClickEventLiveData.observe(viewLifecycleOwner, EventObserver {
+                dismiss()
+            })
         }
     }
 
-    fun showSoftKeyboard(view: View) {
+    private fun showSoftKeyboard(view: View) {
         if (view.requestFocus()) {
             val imm = getSystemService(requireContext(), InputMethodManager::class.java)
             imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // set match parent
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
     }
 }

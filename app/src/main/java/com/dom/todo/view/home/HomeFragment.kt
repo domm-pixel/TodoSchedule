@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.dom.todo.R
 import com.dom.todo.base.BaseFragment
 import com.dom.todo.databinding.FragmentHomeBinding
+import com.dom.todo.view.add.ScheduleAddFragment
 import com.dom.todo.view.container.DayViewContainer
 import com.dom.todo.view.container.MonthViewContainer
 import com.dom.todo.view.home.adapter.ScheduleItemAdapter
@@ -199,11 +200,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 if (homeViewModel.selectedDate.value == null) {
                     Toast.makeText(requireContext(), "날짜를 선택해주세요.", Toast.LENGTH_SHORT).show()
                 } else {
-                    findNavController().navigate(
-                        R.id.action_fragment_home_to_fragment_add_schedule,
-                        args = Bundle().apply {
-                            putString("date", homeViewModel.selectedDate.value.toString())
-                        })
+                    ScheduleAddFragment().show(childFragmentManager, "ScheduleAddFragment")
+
+//                    findNavController().navigate(
+//                        R.id.action_fragment_home_to_fragment_add_schedule,
+//                        args = Bundle().apply {
+//                            putString("date", homeViewModel.selectedDate.value.toString())
+//                        })
                 }
             }
         }

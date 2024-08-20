@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.dom.todo.base.BaseViewModel
 import com.dom.todo.model.schedule.Schedule
 import com.dom.todo.repo.ScheduleRepository
+import com.dom.todo.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,6 +27,8 @@ class AddViewModel @Inject constructor(
 
     private val _content = MutableLiveData<String>()
     val content: LiveData<String> = _content
+
+    val backClickEventLiveData = MutableLiveData<Event<Unit>>()
 
     fun setDate(date: String) {
         _date.value = date
@@ -50,6 +53,10 @@ class AddViewModel @Inject constructor(
             )
             callback()
         }
+    }
+
+    fun onBackClick() {
+        backClickEventLiveData.value = Event(Unit)
     }
 
 }
