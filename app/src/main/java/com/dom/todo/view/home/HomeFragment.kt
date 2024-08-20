@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.dom.todo.R
 import com.dom.todo.base.BaseFragment
 import com.dom.todo.databinding.FragmentHomeBinding
+import com.dom.todo.extension.ViewExtension.visible
 import com.dom.todo.view.add.ScheduleAddFragment
 import com.dom.todo.view.container.DayViewContainer
 import com.dom.todo.view.container.MonthViewContainer
@@ -44,6 +45,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             setUI()
             observing()
             setOnViewClickListener()
+            setFragmentResultListener()
         }
     }
 
@@ -68,15 +70,28 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
             calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
                 // Called only when a new container is needed.
-                override fun create(view: View) = DayViewContainer(view)
+                override fun create(view: View): DayViewContainer {
+                    return DayViewContainer(view)
+                }
 
                 // Called every time we need to reuse a container.
                 override fun bind(container: DayViewContainer, data: CalendarDay) {
                     val textView = container.textView
+//                    val dotView = container.dotView
                     // Set the calendar day for this container.
                     container.day = data
                     // Set the date text
                     textView.text = data.date.dayOfMonth.toString()
+//                    Log.e("TAG KDH", "viewmodel's schedule.date : ${homeViewModel.scheduleData.value}")
+//                    if (homeViewModel.scheduleData.value?.firstOrNull {
+//                        it.date == data.date.toString()
+//                    } != null) {
+//                        Log.e("TAG KDH", "data.date : ${data.date}")
+//                        dotView.visible(true)
+//                        dotView.isSelected = true
+//                    } else {
+//                        dotView.visible(false)
+//                    }
 
                     textView.setOnClickListener {
                         // 해당 월 넘어가면 클릭 무시
@@ -208,6 +223,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 //                            putString("date", homeViewModel.selectedDate.value.toString())
 //                        })
                 }
+            }
+        }
+    }
+
+    private fun setFragmentResultListener() {
+        childFragmentManager.setFragmentResultListener("refreshKey", viewLifecycleOwner) { key, bundle ->
+            // We use a String here, but any type that can be put in a Bundle is supported
+            if (bundle.getBoolean("needRefresh", false)) {
+                homeViewModel.getSelectedDate(homeViewModel.selectedDate.value)
             }
         }
     }

@@ -21,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:onClick="@{() -> viewModel.onBackClick()}"
+                android:onClick="@{(view) -> viewModel.onViewClick(view.id)}"
                 android:id="@+id/ivBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -68,6 +68,7 @@
             app:layout_constraintTop_toBottomOf="@id/etTitle" />
 
         <Button
+            android:onClick="@{(view) -> viewModel.onViewClick(view.id)}"
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

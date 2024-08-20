@@ -96,8 +96,9 @@
             android:gravity="center"
             android:text="No Schedule"
             android:visibility="gone"
+            todo:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/addButton" />
+            app:layout_constraintTop_toBottomOf="@+id/addButtonContainer" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

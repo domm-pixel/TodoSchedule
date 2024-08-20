@@ -1,5 +1,6 @@
 package com.dom.todo.view.add
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dom.todo.R
@@ -45,7 +47,7 @@ class ScheduleAddFragment: BaseDialogFragment<FragmentAddScheduleBinding>(R.layo
         // if date is empty, show toast and popBackStack
         if(date.isEmpty()) {
             Toast.makeText(requireContext(), "날짜를 선택해주세요.", Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
+            dismiss()
         }
 
 
@@ -53,34 +55,37 @@ class ScheduleAddFragment: BaseDialogFragment<FragmentAddScheduleBinding>(R.layo
             viewModel = addViewModel
             showSoftKeyboard(etTitle)
 
-            btnSave.setOnClickListener {
-                /**
-                    @ColumnInfo(name = "date") val date: String?,
-                    @ColumnInfo(name = "title") val title: String?,
-                    @ColumnInfo(name = "contents") val contents: String?,
-                    @ColumnInfo(name = "checked") val checked: Boolean?
-                * */
-                val title = etTitle.text.toString()
-                val contents = etContents.text.toString()
-                val schedule = Schedule(
-                    date = date,
-                    title = title,
-                    contents = contents,
-                    checked = false
-                )
-                addViewModel.insertScheduleData(schedule) {
-                    Log.e("TAG KDH",schedule.toString())
-                    if(etTitle.text.toString().isNotEmpty() && etContents.text.toString().isNotEmpty()) {
-                        Toast.makeText(requireContext(), "일정이 추가되었습니다.", Toast.LENGTH_SHORT).show()
-                        findNavController().popBackStack()
-                    } else {
-                        Toast.makeText(requireContext(), "제목과 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            addViewModel.backClickEventLiveData.observe(viewLifecycleOwner, EventObserver { viewId ->
+                when(viewId) {
+                    R.id.ivBack -> {
+                        dialog?.dismiss()
+                    }
+                    R.id.btnSave -> {
+                        val title = etTitle.text.toString()
+                        val contents = etContents.text.toString()
+
+                        // if title or contents is empty, show toast and return
+                        if(title == "" || contents == "") {
+                            Toast.makeText(requireContext(), "제목과 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                            return@EventObserver
+                        }
+
+                        // create schedule object
+                        val schedule = Schedule(
+                            date = date,
+                            title = title,
+                            contents = contents,
+                            checked = false
+                        )
+                        addViewModel.insertScheduleData(schedule) {
+                            Log.e("TAG KDH",schedule.toString())
+                            if(etTitle.text.toString().isNotEmpty() && etContents.text.toString().isNotEmpty()) {
+                                Toast.makeText(requireContext(), "일정이 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                                dismiss()
+                            }
+                        }
                     }
                 }
-            }
-
-            addViewModel.backClickEventLiveData.observe(viewLifecycleOwner, EventObserver {
-                dismiss()
             })
         }
     }
@@ -99,5 +104,16 @@ class ScheduleAddFragment: BaseDialogFragment<FragmentAddScheduleBinding>(R.layo
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setFragmentResult()
+    }
+
+    private fun setFragmentResult() {
+        setFragmentResult("refreshKey", Bundle().apply {
+            putBoolean("needRefresh", true)
+        })
     }
 }

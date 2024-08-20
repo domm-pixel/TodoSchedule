@@ -28,7 +28,7 @@ class AddViewModel @Inject constructor(
     private val _content = MutableLiveData<String>()
     val content: LiveData<String> = _content
 
-    val backClickEventLiveData = MutableLiveData<Event<Unit>>()
+    val backClickEventLiveData = MutableLiveData<Event<Int>>()
 
     fun setDate(date: String) {
         _date.value = date
@@ -55,8 +55,8 @@ class AddViewModel @Inject constructor(
         }
     }
 
-    fun onBackClick() {
-        backClickEventLiveData.value = Event(Unit)
+    fun onViewClick(viewId: Int) {
+        backClickEventLiveData.value = Event(viewId)
     }
 
 }
