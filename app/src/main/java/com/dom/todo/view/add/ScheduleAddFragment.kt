@@ -1,9 +1,12 @@
 package com.dom.todo.view.add
 
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.dom.todo.R
@@ -11,7 +14,9 @@ import com.dom.todo.base.BaseFragment
 import com.dom.todo.databinding.FragmentAddScheduleBinding
 import com.dom.todo.model.schedule.Schedule
 import com.dom.todo.view.add.viewmodel.AddViewModel
+import com.google.android.material.internal.ViewUtils.showKeyboard
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class ScheduleAddFragment:BaseFragment<FragmentAddScheduleBinding>(R.layout.fragment_add_schedule) {
@@ -32,6 +37,9 @@ class ScheduleAddFragment:BaseFragment<FragmentAddScheduleBinding>(R.layout.frag
         val date = arguments?.getString("date")
 
         binding {
+
+            showSoftKeyboard(etTitle)
+
             btnSave.setOnClickListener {
                 /**
                     @ColumnInfo(name = "date") val date: String?,
@@ -57,6 +65,13 @@ class ScheduleAddFragment:BaseFragment<FragmentAddScheduleBinding>(R.layout.frag
                     }
                 }
             }
+        }
+    }
+
+    fun showSoftKeyboard(view: View) {
+        if (view.requestFocus()) {
+            val imm = getSystemService(requireContext(), InputMethodManager::class.java)
+            imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         }
     }
 }

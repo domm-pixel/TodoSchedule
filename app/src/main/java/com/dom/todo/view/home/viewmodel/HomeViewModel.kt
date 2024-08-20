@@ -24,7 +24,6 @@ class HomeViewModel @Inject constructor(
     fun setSelectedDate(date: LocalDate?) {
         _selectedDate.value = date
     }
-
     fun getSelectedDate(date: LocalDate?) {
         viewModelScope.launch {
             _scheduleData.value = scheduleRepository.getScheduleDataByDate(date.toString())
