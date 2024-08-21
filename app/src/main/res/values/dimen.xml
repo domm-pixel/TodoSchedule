@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="itemVerticalMargin">4dp</dimen>
+    <dimen name="itemFirstLastVerticalMargin">0dp</dimen>
+    <dimen name="itemHorizontalMargin">2dp</dimen>
+</resources>

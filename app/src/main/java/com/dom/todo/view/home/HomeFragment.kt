@@ -7,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.children
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dom.todo.R
 import com.dom.todo.base.BaseFragment
+import com.dom.todo.base.BaseRecyclerViewDecoration
 import com.dom.todo.databinding.FragmentHomeBinding
 import com.dom.todo.extension.ViewExtension.visible
 import com.dom.todo.util.EventObserver
@@ -22,15 +22,17 @@ import com.dom.todo.view.container.DayViewContainer
 import com.dom.todo.view.container.MonthViewContainer
 import com.dom.todo.view.home.adapter.ScheduleItemAdapter
 import com.dom.todo.view.home.viewmodel.HomeViewModel
+import com.dom.todo.view.update.ScheduleUpdateFragment
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.kizitonwose.calendar.view.MonthScrollListener
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.callbackFlow
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
@@ -40,6 +42,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     private val homeViewModel: HomeViewModel by viewModels()
     private var beforeClickedTextView: TextView? = null
+    private var storedTextView: TextView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,72 +57,59 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private fun initializeCalendar() {
         binding {
             calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-                // Called only when a new container is needed.
                 override fun create(view: View): DayViewContainer {
                     return DayViewContainer(view)
                 }
 
-                // Called every time we need to reuse a container.
                 override fun bind(container: DayViewContainer, data: CalendarDay) {
                     val textView = container.textView
                     val dotView = container.dotView
-                    // Set the calendar day for this container.
+
                     container.day = data
-                    // Set the date text
                     textView.text = data.date.dayOfMonth.toString()
+
                     textView.setOnClickListener {
-                        // 해당 월 넘어가면 클릭 무시
                         if (data.position != DayPosition.MonthDate) {
                             return@setOnClickListener
                         }
 
-                        // Check the day position as we do not want to select in or out dates.
-                        Log.e("TAG KDH", "date : ${data.date}")
-                        Log.e("TAG KDH", "position : ${data.position}")
-                        val selectedDate = data.date //if (data.position == DayPosition.MonthDate) {
-//                            data.date
-//                        } else {
-//                            null
-//                        }
+                        homeViewModel.setSelectedDate(data.date)
+                        calendarView.notifyDateChanged(data.date)
 
-                        homeViewModel.setSelectedDate(selectedDate)
-                        if (data.date == homeViewModel.selectedDate.value) {
-                            Log.e("TAG KDH", "before?: ${beforeClickedTextView?.text}")
-                            if (beforeClickedTextView == null) {
-                                beforeClickedTextView = textView
-                            } else {
-                                beforeClickedTextView!!.isSelected = false
-                                beforeClickedTextView = textView
-                            }
-                            textView.isSelected = true
+                        if (beforeClickedTextView != null) {
+                            beforeClickedTextView!!.isSelected = false
                         }
-//                        calendarView.notifyDateChanged(selectedDate)
+                        textView.isSelected = true
+                        beforeClickedTextView = textView
                     }
 
-                    // set initial state about month state
+                    if(storedTextView != null) {
+                        Log.e("TAG", "storedTextView is not null: ${storedTextView!!.text}")
+                        if(storedTextView!!.text == textView.text) {
+                            textView.isSelected = true
+                            storedTextView = null
+                        }
+                    }
+
+
+                    // 설정 초기 상태 (월이 속하지 않는 날짜는 비활성화)
                     if (data.position != DayPosition.MonthDate) {
                         textView.setTextColor(Color.LTGRAY)
-                    }
-
-                    if (homeViewModel.allScheduleData.value?.firstOrNull {
-                            it.date == data.date.toString()
-                        } != null) {
-                        Log.e("TAG KDH", "data.date : ${data.date}")
-                        dotView.visible(true)
-                        dotView.isSelected = true
-                    } else {
                         dotView.visible(false)
+                    } else {
+                        textView.setTextColor(Color.BLACK)
+                        dotView.visible(true)
+                        dotView.isSelected = homeViewModel.allScheduleData.value?.any {
+                            it.date == data.date.toString()
+                        } == true
                     }
                 }
             }
 
             calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
-
                 override fun create(view: View) = MonthViewContainer(view)
+
                 override fun bind(container: MonthViewContainer, data: CalendarMonth) {
-                    // Remember that the header is reused so this will be called for each month.
-                    // However, the first day of the week will not change so no need to bind
-                    // the same view every time it is reused.
                     if (container.titlesContainer.tag == null) {
                         container.titlesContainer.tag = data.yearMonth
                         container.titlesContainer.children.map { it as TextView }
@@ -127,18 +117,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 val dayOfWeek = daysOfWeek()[index]
                                 val title =
                                     dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-                                Log.e("TAG KDH", "title : $title")
                                 textView.text = title
-                                // In the code above, we use the same `daysOfWeek` list
-                                // that was created when we set up the calendar.
-                                // However, we can also get the `daysOfWeek` list from the month data:
-                                // val daysOfWeek = data.weekDays.first().map { it.date.dayOfWeek }
-                                // Alternatively, you can get the value for this specific index:
-                                // val dayOfWeek = data.weekDays.first()[index].date.dayOfWeek
                             }
                     }
                 }
             }
+
             calendarView.monthScrollListener = object : MonthScrollListener {
                 override fun invoke(calendarMonth: CalendarMonth) {
                     tvYear.text = "${calendarMonth.yearMonth.year}"
@@ -146,15 +130,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
 
-
             val currentMonth = YearMonth.now()
-            val startMonth = currentMonth.minusMonths(100)  // Adjust as needed
-            val endMonth = currentMonth.plusMonths(100)  // Adjust as needed
-//            val firstDayOfWeek = firstDayOfWeekFromLocale() // Available from the library
+            val startMonth = currentMonth.minusMonths(100)
+            val endMonth = currentMonth.plusMonths(100)
             val daysOfWeek = daysOfWeek()
             calendarView.setup(startMonth, endMonth, daysOfWeek.first())
             calendarView.scrollToMonth(currentMonth)
-
 
             val titlesContainer = titlesContainer as ViewGroup
             titlesContainer.children
@@ -170,21 +151,34 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private fun setUI() {
         binding {
             val scheduleItemAdapter = ScheduleItemAdapter { bundle ->
+                // check schedule completed
                 if (bundle.containsKey("id")) {
                     val id = bundle.getInt("id")
                     val check = bundle.getBoolean("checked")
                     homeViewModel.setCheck(id, check)
-
                 } else if (bundle.containsKey("idValue")) {
+                    // delete schedule
                     val id = bundle.getInt("idValue")
                     homeViewModel.deleteSchedule(id) {
                         homeViewModel.setSelectedDate(homeViewModel.selectedDate.value)
                     }
+                } else {
+                    // update schedule
+                    val id = bundle.getInt("updateIdValue")
+                    homeViewModel.setUpdateScheduleId(id)
                 }
-
             }
 
             rvSchedule.adapter = scheduleItemAdapter
+            rvSchedule.addItemDecoration(BaseRecyclerViewDecoration(
+                firstItemMargin = resources.getDimension(R.dimen.itemFirstLastVerticalMargin).toInt(),
+                lastItemMargin = resources.getDimension(R.dimen.itemFirstLastVerticalMargin).toInt(),
+                left = resources.getDimension(R.dimen.itemHorizontalMargin).toInt(),
+                right = resources.getDimension(R.dimen.itemHorizontalMargin).toInt(),
+                top = resources.getDimension(R.dimen.itemVerticalMargin).toInt(),
+                bottom = resources.getDimension(R.dimen.itemVerticalMargin).toInt(),
+                orientation = LinearLayoutManager.VERTICAL
+            ))
         }
     }
 
@@ -194,32 +188,33 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 viewLifecycleOwner,
                 EventObserver { success ->
                     if (!success) {
-                        Toast.makeText(requireContext(), "일정을 불러오는데 실패했습니다.", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(requireContext(), "일정을 불러오는데 실패했습니다.", Toast.LENGTH_SHORT).show()
                     } else {
                         initializeCalendar()
                     }
                 })
 
-            // observe
             selectedDate.observe(viewLifecycleOwner) { data ->
                 if (data != null) {
-                    dataBinding.addButtonContainer.visibility = View.VISIBLE
+                    dataBinding.addButtonContainer.visible(true)
                     getSelectedDate(data)
                 } else {
-                    dataBinding.addButtonContainer.visibility = View.GONE
+                    dataBinding.addButtonContainer.visible(false)
                 }
             }
 
             scheduleData.observe(viewLifecycleOwner) { data ->
-                Log.e("TAG KDH", "data : $data")
                 if (data.isEmpty()) {
                     dataBinding.tvNoSchedule.visibility = View.VISIBLE
                 } else {
                     dataBinding.tvNoSchedule.visibility = View.GONE
                 }
                 (dataBinding.rvSchedule.adapter as ScheduleItemAdapter).submitList(data)
+            }
 
+            updateScheduleId.observe(viewLifecycleOwner) {
+                storedTextView = beforeClickedTextView
+                ScheduleUpdateFragment().show(childFragmentManager, "ScheduleUpdateFragment")
             }
         }
     }
@@ -230,13 +225,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 if (homeViewModel.selectedDate.value == null) {
                     Toast.makeText(requireContext(), "날짜를 선택해주세요.", Toast.LENGTH_SHORT).show()
                 } else {
+                    storedTextView = beforeClickedTextView
                     ScheduleAddFragment().show(childFragmentManager, "ScheduleAddFragment")
-
-//                    findNavController().navigate(
-//                        R.id.action_fragment_home_to_fragment_add_schedule,
-//                        args = Bundle().apply {
-//                            putString("date", homeViewModel.selectedDate.value.toString())
-//                        })
                 }
             }
         }
@@ -247,9 +237,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             "refreshKey",
             viewLifecycleOwner
         ) { key, bundle ->
-            // We use a String here, but any type that can be put in a Bundle is supported
             if (bundle.getBoolean("needRefresh", false)) {
+                homeViewModel.getAllScheduleData()
                 homeViewModel.getSelectedDate(homeViewModel.selectedDate.value)
+                bundle.clear()
             }
         }
     }

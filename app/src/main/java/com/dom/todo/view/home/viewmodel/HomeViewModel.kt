@@ -29,15 +29,22 @@ class HomeViewModel @Inject constructor(
 
     val scheduleInitializeCompleteLiveData = MutableLiveData<Event<Boolean>>()
 
+    val updateScheduleId = MutableLiveData<Int>()
+
     init {
+        _selectedDate.value = null
         getAllScheduleData()
     }
 
-    private fun getAllScheduleData() {
+    fun getAllScheduleData() {
         viewModelScope.launch {
             _allScheduleData.value = scheduleRepository.getScheduleData()
             scheduleInitializeCompleteLiveData.value = Event(true)
         }
+    }
+
+    fun setUpdateScheduleId(id: Int) {
+        updateScheduleId.value = id
     }
 
     fun setSelectedDate(date: LocalDate?) {

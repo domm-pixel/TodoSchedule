@@ -35,7 +35,7 @@ class ScheduleItemViewModel @Inject constructor(
             // put checked
             putInt("id", idValue)
             putBoolean("checked", !isChecked.value!!)
-
+            _isChecked.value = !isChecked.value!!
         })
     }
 
@@ -43,6 +43,13 @@ class ScheduleItemViewModel @Inject constructor(
         adapterCallback(Bundle().apply {
             // put checked
             putInt("idValue", idValue)
+        })
+    }
+
+    fun onClickUpdateItem() {
+        adapterCallback(Bundle().apply {
+            // put checked
+            putInt("updateIdValue", idValue)
         })
     }
 }

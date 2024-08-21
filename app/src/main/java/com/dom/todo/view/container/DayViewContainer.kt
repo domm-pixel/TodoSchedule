@@ -10,21 +10,26 @@ import com.kizitonwose.calendar.view.ViewContainer
 class DayViewContainer(view: View) : ViewContainer(view) {
     val textView: TextView = view.findViewById(R.id.calendarDayText)
     val dotView: ImageView = view.findViewById(R.id.calendarDayScheduledIcon)
-    // Will be set when this container is bound
-    lateinit var day: CalendarDay
+
+    var day: CalendarDay? = null
+
+    // 일정 존재 여부를 나타내는 속성
+    var hasSchedule: Boolean = false
+        set(value) {
+            field = value
+            updateDotViewVisibility()
+        }
 
     init {
         view.setOnClickListener {
-            // Use the CalendarDay associated with this container.
+            day?.let {
+                // 날짜 선택 시 수행할 동작을 여기서 처리할 수 있습니다.
+            }
         }
-        // check schedule is exist
-        // if exist, show dotView
-        // else, hide dotView
-
     }
 
-
-
-    // With ViewBinding
-    // val textView = CalendarDayLayoutBinding.bind(view).calendarDayText
+    // dotView의 가시성을 설정하는 메서드
+    private fun updateDotViewVisibility() {
+        dotView.visibility = if (hasSchedule) View.VISIBLE else View.INVISIBLE
+    }
 }

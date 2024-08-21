@@ -29,6 +29,8 @@ class ScheduleAddFragment: BaseDialogFragment<FragmentAddScheduleBinding>(R.layo
     )
     private val addViewModel: AddViewModel by viewModels()
 
+    private var refreshNeedFlag = false
+
 //    private val db = Room.databaseBuilder(
 //        requireContext(),
 //        AppDatabase::class.java, "schedule-todo-db"
@@ -81,6 +83,7 @@ class ScheduleAddFragment: BaseDialogFragment<FragmentAddScheduleBinding>(R.layo
                             Log.e("TAG KDH",schedule.toString())
                             if(etTitle.text.toString().isNotEmpty() && etContents.text.toString().isNotEmpty()) {
                                 Toast.makeText(requireContext(), "일정이 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                                refreshNeedFlag = true
                                 dismiss()
                             }
                         }
@@ -108,7 +111,9 @@ class ScheduleAddFragment: BaseDialogFragment<FragmentAddScheduleBinding>(R.layo
 
     override fun onDestroy() {
         super.onDestroy()
-        setFragmentResult()
+        if(refreshNeedFlag) {
+            setFragmentResult()
+        }
     }
 
     private fun setFragmentResult() {

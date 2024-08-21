@@ -10,6 +10,9 @@ interface ScheduleRepository {
     // get schedule data by date
     suspend fun getScheduleDataByDate(date : String) : List<Schedule>
 
+    // get schedule detail by id
+    suspend fun getScheduleDataById(id: Int) : Schedule
+
     // update check value
     suspend fun setCheck(id: Int, check: Boolean)
 
@@ -20,7 +23,7 @@ interface ScheduleRepository {
     suspend fun insertScheduleData(data : Schedule)
 
     // update schedule data
-    suspend fun updateScheduleData(data : Schedule)
+    suspend fun updateScheduleData(id: Int, title: String, contents:String)
 
     // delete schedule data by id
     suspend fun deleteScheduleData(id: Int)

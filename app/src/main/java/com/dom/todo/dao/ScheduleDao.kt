@@ -12,6 +12,10 @@ interface ScheduleDao {
     @Query("SELECT * FROM Schedule")
     fun getAll(): List<Schedule>
 
+    //get schedule detail by id
+    @Query("SELECT * FROM Schedule WHERE id = :id")
+    fun getScheduleById(id: Int): Schedule
+
     //query which get all by date
     @Query("SELECT * FROM Schedule WHERE date = :date")
     fun getAllByDate(date: String): List<Schedule>
@@ -24,9 +28,9 @@ interface ScheduleDao {
     @Insert
     fun addSchedule(schedule: Schedule)
 
-    //query which update schedule
-    @Update
-    fun updateSchedule(schedule: Schedule)
+    // 기존 특정 필드만 업데이트하는 메서드 유지
+    @Query("UPDATE Schedule SET title = :title, contents = :contents WHERE id = :id")
+    fun updateSchedule(id: Int, title: String, contents: String)
 
     //query which delete schedule
     @Query("DELETE FROM Schedule WHERE id = :id")

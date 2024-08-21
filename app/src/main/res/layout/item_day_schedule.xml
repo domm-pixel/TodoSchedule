@@ -13,52 +13,76 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp">
+        android:background="@drawable/bg_item_schedule"
+        android:onClick="@{() -> scheduleItemVm.onClickItem()}"
+        android:padding="12dp">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:text="@{scheduleItemVm.title}"
             android:textColor="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/cbCheck"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:text="@{scheduleItemVm.title}"
             tools:text="타이틀" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvContent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/cbCheck"
-            app:layout_constraintStart_toEndOf="@+id/tvTitle"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@{scheduleItemVm.contents}"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toStartOf="@+id/cbCheck"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             tools:text="컨텐츠" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:onClick="@{() -> scheduleItemVm.onClickDeleteItem()}"
-            android:src="@drawable/ic_alarm_delete_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/cbCheck"/>
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/cbCheck"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:checked="@{scheduleItemVm.isChecked}"
-            android:onClick="@{() -> scheduleItemVm.onClickItem()}"
-            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/tvContent"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/tvTitle" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvContent">
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivUpdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:onClick="@{() -> scheduleItemVm.onClickUpdateItem()}"
+                android:padding="5dp"
+                android:src="@drawable/ic_update"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ivDelete"
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:onClick="@{() -> scheduleItemVm.onClickDeleteItem()}"
+                android:padding="5dp"
+                android:src="@drawable/ic_alarm_delete_time"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

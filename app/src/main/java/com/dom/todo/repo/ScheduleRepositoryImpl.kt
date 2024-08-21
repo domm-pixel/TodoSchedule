@@ -14,6 +14,10 @@ class ScheduleRepositoryImpl @Inject constructor(
         scheduleDao.getAll()
     }
 
+    override suspend fun getScheduleDataById(id: Int): Schedule = withContext(Dispatchers.IO) {
+        scheduleDao.getScheduleById(id)
+    }
+
     override suspend fun getScheduleDataByDate(date: String): List<Schedule> = withContext(Dispatchers.IO) {
         scheduleDao.getAllByDate(date)
     }
@@ -26,8 +30,8 @@ class ScheduleRepositoryImpl @Inject constructor(
         scheduleDao.addSchedule(data)
     }
 
-    override suspend fun updateScheduleData(data: Schedule) = withContext(Dispatchers.IO) {
-        scheduleDao.updateSchedule(data)
+    override suspend fun updateScheduleData(id: Int, title:String, contents: String) = withContext(Dispatchers.IO) {
+        scheduleDao.updateSchedule(id, title, contents)
     }
 
     override suspend fun deleteScheduleData(id: Int) = withContext(Dispatchers.IO) {

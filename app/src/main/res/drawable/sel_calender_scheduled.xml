@@ -3,7 +3,7 @@
 
     <item android:drawable="@drawable/bg_calendar_on" android:state_selected="true"/>
 
-    <item android:drawable="@drawable/bg_calendar_off" android:state_selected="false"/>
+    <item android:drawable="@drawable/bg_transparent" android:state_selected="false"/>
 
 
 </selector>
