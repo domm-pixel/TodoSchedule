@@ -14,6 +14,10 @@ dagger hilt를 사용하여 의존성을 주입하였습니다.
 - 일정 확인
 
 ## 3. Screenshots
+![KakaoTalk_Photo_2024-08-21-16-00-55 004](https://github.com/user-attachments/assets/d1e6cc12-370d-4a28-8219-8f29895a1b44)
+![KakaoTalk_Photo_2024-08-21-16-00-55 003](https://github.com/user-attachments/assets/300ae1fe-0d66-43b8-a8aa-e039433894ff)
+![KakaoTalk_Photo_2024-08-21-16-00-55 002](https://github.com/user-attachments/assets/ae5c4bcd-07f0-4bc8-bcae-afd1034fdfe6)
+![KakaoTalk_Photo_2024-08-21-16-00-55 001](https://github.com/user-attachments/assets/69ed7b74-19a4-496a-a543-85a0ba6adf86)
 
 
 ## 4. Libraries
