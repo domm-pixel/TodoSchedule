@@ -1,11 +1,14 @@
 package com.dom.todo.view.home.viewmodel
 
+
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dom.todo.base.BaseViewModel
 import com.dom.todo.model.schedule.Schedule
 import com.dom.todo.repo.ScheduleRepository
+import com.dom.todo.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -20,6 +23,22 @@ class HomeViewModel @Inject constructor(
 
     private val _scheduleData = MutableLiveData<List<Schedule>>()
     val scheduleData: LiveData<List<Schedule>> = _scheduleData
+
+    private val _allScheduleData = MutableLiveData<List<Schedule>>()
+    val allScheduleData: LiveData<List<Schedule>> = _allScheduleData
+
+    val scheduleInitializeCompleteLiveData = MutableLiveData<Event<Boolean>>()
+
+    init {
+        getAllScheduleData()
+    }
+
+    private fun getAllScheduleData() {
+        viewModelScope.launch {
+            _allScheduleData.value = scheduleRepository.getScheduleData()
+            scheduleInitializeCompleteLiveData.value = Event(true)
+        }
+    }
 
     fun setSelectedDate(date: LocalDate?) {
         _selectedDate.value = date

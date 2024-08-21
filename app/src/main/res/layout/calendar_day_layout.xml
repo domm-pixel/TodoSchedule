@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="@+id/calendarDayText"
         app:layout_constraintEnd_toEndOf="@+id/calendarDayText"
         android:src="@drawable/sel_calender_scheduled"
-        android:visibility="gone"
+        android:layout_margin="5dp"
         android:layout_width="10dp"
         android:layout_height="10dp"/>
 

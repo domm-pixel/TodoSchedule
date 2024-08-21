@@ -54,11 +54,12 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:layout_marginStart="16dp"
+            android:inputType="textMultiLine"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            android:gravity="top"
             android:hint="Contents"
-            android:inputType="text"
             android:lines="10"
             android:minLines="5"
             android:textColor="@color/black"
@@ -67,9 +68,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/etTitle" />
 
-        <Button
+        <TextView
             android:onClick="@{(view) -> viewModel.onViewClick(view.id)}"
             android:id="@+id/btnSave"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="@color/material_dynamic_primary40"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save"

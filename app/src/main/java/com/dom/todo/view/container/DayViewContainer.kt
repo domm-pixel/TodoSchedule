@@ -17,6 +17,10 @@ class DayViewContainer(view: View) : ViewContainer(view) {
         view.setOnClickListener {
             // Use the CalendarDay associated with this container.
         }
+        // check schedule is exist
+        // if exist, show dotView
+        // else, hide dotView
+
     }
 
 
